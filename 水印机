@@ -1,0 +1,90 @@
+import os
+import sys
+from PIL import Image, ImageFont, ImageDraw
+
+# public parameter
+font_full_path = r"C:\Users\admin\AppData\Local\Microsoft\Windows\Fonts\SourceHanSansCN-Bold.otf"
+# font_full_path = input("请输入字体路径：\n")
+font_size = 200
+# font_size = input("请输入字体大小：\n")
+font_color = "#ffffff"
+# font_color = input("请输入字体颜色（RGB模式，例如#ffffff）：\n")
+picture_path = r"C:\Users\admin\Desktop\watermark"
+# picture_path = input("请输入要打水印的文件夹路径：\n")
+watermark_position = 0,0
+
+
+#横板水印参数
+hor_watermark_path = r"C:\Users\admin\Desktop\watermark\marked\heng.png"
+# hor_watermark_path = input("请输入横板水印模板路径：\n")
+hor_font_position = [4315,2932]
+# hor_font_position = []
+# hor_font_position.append(input("请输入横版水印横坐标：\n"))
+# hor_font_position.append(input("请输入横版水印纵坐标：\n"))
+
+
+#竖版水印参数
+upr_watermark_path = r"C:\Users\admin\Desktop\watermark\marked\shu.png"
+upr_font_position = [2697,4637]
+# upr_watermark_path = input("请输入竖版水印模板路径：\n")
+# upr_font_position = []
+# upr_font_position.append(input("请输入竖版水印横坐标："))
+# upr_font_position.append(input("请输入竖版水印纵坐标："))
+
+
+
+def add_watermark(hor_watermark,upr_watermark,name,picture_full_path):
+    # 打开三张图
+    picture = Image.open(picture_full_path)
+    hor_watermark = Image.open(hor_watermark_path)
+    upr_watermark = Image.open(upr_watermark_path)
+
+    picture_size = picture.size
+    print(picture_size)
+    font_setting = ImageFont.truetype(font_full_path,size=font_size)
+    draw_txt = ImageDraw.Draw(picture)
+    new_name = os.path.join(root,picture_fullname_nosuffix)
+    print("newname值",new_name)
+
+
+    if picture_size[0] > picture_size[1]:   #横板
+        picture.paste(hor_watermark,watermark_position,hor_watermark)
+        picture.resize((10336,6896),Image.ANTIALIAS)
+        # picture.convert("RGB")
+        draw_txt.text(xy= hor_font_position,
+                      text = name,
+                      fill = font_color,
+                      font = font_setting)
+        picture.save(new_name + ".png",quailty = 100,subsampling=0)
+        if os.path.exists(new_name + ".jpg"):
+            print("new_name + .jpg值",new_name + ".jpg")
+            os.remove(new_name + ".jpg")
+    else:
+        picture.paste(upr_watermark, watermark_position, upr_watermark)
+        draw_txt.text(xy=upr_font_position,
+                      text=name,
+                      fill=font_color,
+                      font=font_setting)
+        picture.save(new_name + ".png", quailty = 100,subsampling=0)
+        if os.path.exists(new_name + ".jpg"):
+            print("new_name + .jpg值",new_name + ".jpg")
+            os.remove(new_name + ".jpg")
+        pass
+    pass
+
+ext = [".jpg","jpeg",".png"]
+ext2 = ["前缀1","前缀2","前缀3"]
+for root,dirs,files in os.walk(picture_path):
+    folder_name = os.listdir(root)
+    for name in folder_name:
+        if name.endswith(tuple(ext)) and name.startswith(tuple(ext2)):
+            picture_fullname = name     #带后缀的图片名
+            print("picture_fullname值：",picture_fullname)
+            # 下面是以图片名为水印
+            index = name.rfind(".")
+            picture_fullname_nosuffix = name[:index]     #不带后缀的图片名
+            print(picture_fullname_nosuffix,"不带后缀")
+            folder_name_mark = os.path.basename(root)
+            print("folder_name_mark值：",folder_name_mark)
+            picture_full_path = root + "\\" + picture_fullname
+            add_watermark(hor_watermark_path,upr_watermark_path,folder_name_mark,picture_full_path)
